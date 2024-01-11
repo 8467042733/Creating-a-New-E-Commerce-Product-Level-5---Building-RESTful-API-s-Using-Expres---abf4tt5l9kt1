@@ -13,6 +13,32 @@ app.use(express.json())
 // Write POST endpoint for creating new product here
 // Endpoint /api/v1/products
 
+app.post('/api/v1/products', (req, res) => {
+    const { name, price, quantity } = req.body;
+    if (!name || !price || !quantity || isNaN(price) || isNaN(quantity)) {
+        return res.status(400).json({
+            status: 'failed',
+            message: 'Invalid product data. Please provide name, price, and quantity.',
+        });
+    }
+    const newProductId = products.length > 0 ? products[products.length - 1].id + 1 : 1;
+    const newProduct = {
+        id: newProductId,
+        name,
+        price,
+        quantity,
+    };
+    products.push(newProduct);
+    fs.writeFileSync(`${__dirname}/data/products.json`, JSON.stringify(products, null, 2));
+    res.status(201).json({
+        status: 'success',
+        message: 'Product added successfully',
+        data: {
+            newProduct,
+        },
+    });
+});
+
 // GET endpoint for sending the details of users
 app.get('/api/v1/products', (req,res) => {
     res.status(200).json({
